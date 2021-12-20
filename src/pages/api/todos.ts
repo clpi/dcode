@@ -6,14 +6,14 @@ const prisma = new PrismaClient();
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
     // get all todos
-    const todos = await prisma.todo.findMany({
+    const todos = await prisma.user.findMany({
       orderBy: { createdAt: "desc" },
     });
     res.json(todos);
-  } else if (req.method === "POST") {
+  /* } else if (req.method === "POST") {
     // create todo
     const text = JSON.parse(req.body).text;
-    const todo = await prisma.todo.create({
+    const todo = await prisma.user.create({
       data: { text, completed: false },
     });
 
@@ -27,11 +27,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       data,
     });
 
-    res.json(todo);
+    res.json(todo); */
   } else if (req.method === "DELETE") {
     // delete todo
     const id = req.query.todoId as string;
-    await prisma.todo.delete({ where: { id } });
+    await prisma.user.delete({ where: { id } });
 
     res.json({ status: "ok" });
   }
