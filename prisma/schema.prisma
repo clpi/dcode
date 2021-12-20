@@ -1,0 +1,173 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       String    @id @default(uuid())
+  email    String    @unique
+  username String    @unique
+  password String
+  name     String
+  image    String?
+  created  DateTime  @default(now())
+  updatedAt  DateTime @updatedAt
+  colorschemeId  String
+  siteMode   SiteMode
+  colorscheme Colorscheme @relation(fields: [colorschemeId], references: [id])
+
+  problems         Problem[] 
+  solutions        Solution[]
+  requirements     Requirement[]
+  problemVotes     ProblemVote[]
+  solutionVotes    SolutionVote[]
+  requirementVotes RequirementVote[]
+
+}
+
+model Problem {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  desc       String
+  language   Language?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  solutions  Solution[]
+  tags       ProblemTag[]
+  votes      ProblemVote[]
+}
+
+model Requirement {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  description String
+  tags       RequirementTag[]
+  votes      RequirementVote[]
+}
+
+model Tag {
+  id         String   @id @default(uuid())
+  name       String
+  requirements RequirementTag[]
+  problems     ProblemTag[]
+}
+
+model RequirementTag {
+  id           String   @id @default(uuid())
+  requirement  Requirement  @relation(fields: [requirementId], references: [id])
+  requirementId String
+  tag          Tag     @relation(fields: [tagId], references: [id])
+  tagId        String
+}
+
+model ProblemTag {
+  id           String   @id @default(uuid())
+  problem  Problem  @relation(fields: [problemId], references: [id])
+  problemId String
+  tag          Tag     @relation(fields: [tagId], references: [id])
+  tagId        String
+}
+
+model Solution {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  problem      Problem  @relation(fields: [problemId], references: [id])
+  problemId    String
+  markedBest   Boolean
+  language     Language
+  content      String
+  publish      Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  votes        SolutionVote[]
+}
+
+model SolutionVote {
+  id           String   @id @default(uuid())
+  solution     Solution  @relation(fields: [solutionId], references: [id])
+  solutionId   String
+  user         User      @relation(fields: [userId], references: [id])
+  userId       String
+  value        VoteValue
+  comment      String?
+  identifiers  SolutionIdentifier[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model ProblemVote {
+  id           String   @id @default(uuid())
+  problem      Problem  @relation(fields: [problemId], references: [id])
+  problemId    String
+  user         User      @relation(fields: [userId], references: [id])
+  userId       String
+  value        VoteValue
+  comment      String?
+  identifiers  SolutionIdentifier[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model RequirementVote {
+  id           String   @id @default(uuid())
+  requirement      Requirement  @relation(fields: [requirementId], references: [id])
+  requirementId    String
+  user         User      @relation(fields: [userId], references: [id])
+  userId       String
+  value        VoteValue
+  comment      String?
+  identifiers  SolutionIdentifier[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Colorscheme {
+  id           String   @id @default(uuid())
+  name         String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  users User[]
+}
+
+enum Language {
+  Rust
+  Zig
+  Nim
+  Cpp
+  C
+  JavaScript
+  TypeScript
+  Python
+}
+
+enum VoteValue {
+  Like
+  Dislike
+}
+
+enum SolutionIdentifier {
+  Unique
+  Efficient
+  Naive
+  BruteForce
+  Performant
+}
+
+
+enum SiteMode {
+   Light
+   Dark
+}
